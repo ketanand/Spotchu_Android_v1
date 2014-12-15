@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;Spot.java&apos; to &apos;spotchu/src/com.vrocketz.spotchu.spot&apos;&#x0D;&#x0A;- Original project: &apos;spotchu&apos;&#x0D;&#x0A;- Destination element: &apos;spotchu/src/com.vrocketz.spotchu.spot&apos;&#x0D;&#x0A;- Original element: &apos;com.vrocketz.spotchu.Spot.java&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move compilation unit" destination="/src&lt;com.vrocketz.spotchu.spot" element1="/src&lt;com.vrocketz.spotchu{Spot.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" patterns="*" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1418139704238" units="1" version="1.0"/>
+</session>

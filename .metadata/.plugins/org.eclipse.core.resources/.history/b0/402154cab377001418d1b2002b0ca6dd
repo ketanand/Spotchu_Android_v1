@@ -1,0 +1,57 @@
+package com.vrocketz.spotchu.views.adapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class CommentsListAdapter extends BaseAdapter {
+
+	JSONArray mComments;
+	LayoutInflater mLayoutInflater;
+	Context mContext;
+	
+	public CommentsListAdapter(Context c ,JSONArray comments){
+		mComments = comments;
+		mContext = c;
+		mLayoutInflater = LayoutInflater.from(c);
+	}
+	
+	@Override
+	public int getCount() {
+		return mComments.length();
+	}
+
+	@Override
+	public Object getItem(int pos) {
+		try {
+			return mComments.get(pos);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public long getItemId(int pos) {
+		return pos + 1;
+	}
+
+	@Override
+	public View getView(int pos, View convertView, ViewGroup parent) {
+		return null;
+	}
+	
+	private class ViewHolder {
+		public ImageView img;
+		public TextView title, time, comment;
+	}
+
+}

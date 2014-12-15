@@ -1,0 +1,20 @@
+package com.vrocketz.spotchu.runnables;
+
+import android.os.Handler;
+
+public class DeleteSpots implements Runnable {
+	
+	private Integer mSpotId;
+	private Handler mHandler;
+	
+	public DeleteSpots(Handler handler, Integer id){
+		mSpotId= id;
+		mHandler = handler;
+	}
+
+	@Override
+	public void run() {
+
+	}
+
+}

@@ -1,0 +1,40 @@
+package com.vrocketz.spotchu.views.adapter;
+
+import org.json.JSONArray;
+
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class CommentsListAdapter extends BaseAdapter {
+
+	JSONArray mComments;
+	@Override
+	public int getCount() {
+		return 0;
+	}
+
+	@Override
+	public Object getItem(int pos) {
+		return null;
+	}
+
+	@Override
+	public long getItemId(int pos) {
+		return 0;
+	}
+
+	@Override
+	public View getView(int pos, View convertView, ViewGroup parent) {
+		return null;
+	}
+	
+	private class ViewHolder {
+		public ImageView img;
+		public TextView title, time, comment;
+	}
+
+}

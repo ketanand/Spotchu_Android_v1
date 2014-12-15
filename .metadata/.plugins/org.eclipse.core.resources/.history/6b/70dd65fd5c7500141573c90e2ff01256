@@ -1,0 +1,99 @@
+package com.vrocketz.spotchu.views.adapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.vrocketz.spotchu.R;
+import com.vrocketz.spotchu.activity.CommentsActivity;
+import com.vrocketz.spotchu.helper.Constants;
+import com.vrocketz.spotchu.runnables.Like;
+
+public class FullScreenSpotAdapter extends PagerAdapter {
+	
+	private Activity activity;
+	private String[] mImages;
+	private Handler mHandler;
+	private JSONArray mSpots;
+	
+	public FullScreenSpotAdapter(Activity activity, Handler handler, String[] images, JSONArray spots){
+		this.activity = activity;
+		this.mImages = images;
+		this.mHandler = handler;
+		this.mSpots = spots;
+	}
+
+	@Override
+	public int getCount() {
+		return mImages.length;
+	}
+
+	@Override
+	public boolean isViewFromObject(View view, Object object) {
+		// TODO Auto-generated method stub
+		return view == ((RelativeLayout)object);
+	}
+	
+	@Override
+	public Object instantiateItem(ViewGroup container, int position) {
+		ImageView imgDisplay;
+		Button btnLike;
+		Button btnComment;
+		LayoutInflater inflater = (LayoutInflater) activity
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View viewLayout = inflater.inflate(R.layout.fullscreen_image, container,
+                false);
+		imgDisplay = (ImageView) viewLayout.findViewById(R.id.imgDisplay);
+	    ImageAware imageAware = new ImageViewAware(imgDisplay, false);
+        ImageLoader.getInstance().displayImage(mImages[position], imageAware);
+		try {
+			final int spotId = mSpots.getJSONObject(position).getInt("id");
+			btnLike = (Button) viewLayout.findViewById(R.id.btnHi5Spot);
+		    btnComment = (Button) viewLayout.findViewById(R.id.btnCommentSpot);
+		    // close button click event
+	        btnLike.setOnClickListener(new View.OnClickListener() {           
+	            @Override
+	            public void onClick(View v) {
+	                new Thread(new Like(spotId, mHandler)).start();
+	            }
+	        });
+	        btnComment.setOnClickListener(new View.OnClickListener() {           
+	            @Override
+	            public void onClick(View v) {
+	                Intent i = new Intent(activity, CommentsActivity.class);
+	                i.putExtra("spot", spotId);
+	                activity.startActivity(i);
+	            }
+	        });
+	        
+		} catch (JSONException e) {
+			Log.d(Constants.APP_NAME, "[FullScreenSpotAdapter] spot id not found");
+			e.printStackTrace();
+		}
+		((ViewPager) container).addView(viewLayout);
+		return viewLayout;
+	}
+	
+	@Override
+	public void destroyItem(ViewGroup container, int position, Object object) {
+		((ViewPager) container).removeView((RelativeLayout) object);
+	}
+	
+
+}

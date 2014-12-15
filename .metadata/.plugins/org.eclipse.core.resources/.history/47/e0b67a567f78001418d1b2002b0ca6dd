@@ -1,0 +1,250 @@
+package com.vrocketz.spotchu.activity;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+
+import com.vrocketz.spotchu.R;
+import com.vrocketz.spotchu.SpotchuLocationService;
+import com.vrocketz.spotchu.helper.Config;
+import com.vrocketz.spotchu.helper.Constants;
+import com.vrocketz.spotchu.runnables.GetAddress;
+import com.vrocketz.spotchu.runnables.PostSpot;
+
+public class PostSpotActivity extends FragmentActivity implements OnClickListener {
+	
+	private String imageFilePath;
+	private String imageUrl;
+	private SpotchuLocationService mLocationService;
+	private boolean mIsBound;
+	private Location mLocation;
+	private Map<String, Object> mAddress;
+	private EditText mTag;
+	private EditText mTitle;
+	private NotificationManager mNM;
+	private static int NOTIFICATION_ID = 999;
+	private boolean isUpdate;
+	private JSONObject mSpot;
+	
+	@Override
+	protected void onCreate(Bundle bundle) {
+		super.onCreate(bundle);
+		//Create location client
+		setContentView(R.layout.post_review);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		//Set listeners for buttons
+		Button ok = (Button)findViewById(R.id.btnOk);
+		ok.setOnClickListener(this);
+		Button cancel = (Button)findViewById(R.id.btnCancel);
+		cancel.setOnClickListener(this);
+		
+		mTag = (EditText)findViewById(R.id.txtTags);
+		mTitle = (EditText)findViewById(R.id.txtTitle);
+		
+		//Bind to location Service
+		doBindService();
+		
+		//Initialize Image View
+		imageFilePath = getIntent().getStringExtra("PREVIEW_IMAGE");
+		ImageView img = (ImageView)findViewById(R.id.imgPic);
+		Uri uri = Uri.fromFile(new File(imageFilePath));
+		img.setImageURI(uri);
+		
+		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    // Respond to the action bar's Up/Home button
+	    case android.R.id.home:
+	    	//TODO : Add save spot logic to allow user to repost from MySpots section
+	        NavUtils.navigateUpFromSameTask(this);
+	        return true;
+	    }
+	    return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		doUnbindService();
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onClick(View v) {
+		if (v.getId() == R.id.btnOk){
+			ArrayList<NameValuePair> nameValuePairs = new  ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("tag", mTag.getText().toString()));
+			nameValuePairs.add(new BasicNameValuePair("desc", mTitle.getText().toString()));
+			nameValuePairs.add(new BasicNameValuePair("locationLong", String.valueOf(mLocation.getLongitude())));
+			nameValuePairs.add(new BasicNameValuePair("locationLati", String.valueOf(mLocation.getLatitude())));
+			PostSpot instance = new PostSpot(imageFilePath, mHandler, nameValuePairs);
+			Thread t = new Thread(instance);
+			t.start();
+			if (Config.DEBUG)
+				Log.d(Constants.APP_NAME, "Post Spot Runnable called");
+			
+			showNotification();
+			finish();
+			
+		}else if (v.getId() == R.id.btnCancel){
+			finish();
+		}
+	}
+	
+	private ServiceConnection connection = new ServiceConnection() {
+		
+		@Override
+		public void onServiceDisconnected(ComponentName className) {
+			mLocationService = null;
+		}
+		
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			mLocationService = ((SpotchuLocationService.LocalBinder)service).getService();
+			mLocation = mLocationService.getCurrentLocation();
+			new Thread(new GetAddress(getApplicationContext(), mHandler, mLocation)).start();
+		}
+	};
+	
+	void doBindService() {
+	    // Establish a connection with the service.  We use an explicit
+	    // class name because we want a specific service implementation that
+	    // we know will be running in our own process (and thus won't be
+	    // supporting component replacement by other applications).
+	    bindService(new Intent(this, 
+	            SpotchuLocationService.class), connection, Context.BIND_AUTO_CREATE);
+	    mIsBound = true;
+	}
+
+	void doUnbindService() {
+	    if (mIsBound) {
+	        // Detach our existing connection.
+	        unbindService(connection);
+	        mIsBound = false;
+	    }
+	}
+	
+	private final Handler mHandler = new Handler(){
+		public void handleMessage(Message msg){
+			final int what = msg.what;
+			switch(what){
+				case Constants.ADDRESS_RESOLVED:
+					mAddress = (HashMap<String, Object>) msg.obj;
+					displayAddressInfo();
+					break;
+					
+				case Constants.SPOT_POSTED:
+					updateNotification(R.string.spot_posted);
+					finish();
+					break;
+					
+				case Constants.SPOT_POST_FAILED:
+					updateNotification(R.string.spot_post_failed);
+					finish();
+					break;
+			}
+		}
+	};
+	
+	private void displayAddressInfo(){
+		//TODO : present city info to user.
+	}
+	
+	private void showNotification(){
+		// create the notification
+        
+        String text = (String) getText(R.string.spot_being_uploaded);
+       
+
+        // create the pending intent and add to the notification
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("tab", 2);// Open My Spots when notificaition is clicked
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        /*TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+	     stackBuilder.addParentStack(MainActivity.class);
+	     stackBuilder.addNextIntent(intent);
+	     PendingIntent pendingIntent =
+	             stackBuilder.getPendingIntent(
+	                 0,
+	                 PendingIntent.FLAG_UPDATE_CURRENT
+	             );*/
+        
+        NotificationCompat.Builder m_notificationBuilder = new NotificationCompat.Builder(this)
+	        .setContentTitle(getText(R.string.app_name))
+	        .setContentText(text)
+	        .setTicker(text)
+	        .setSmallIcon(R.drawable.ic_launcher)
+	        .setOngoing(true);
+	    m_notificationBuilder.setContentIntent(pendingIntent);
+	    m_notificationBuilder.setProgress(0, 0, true);
+        // send the notification
+        mNM.notify(NOTIFICATION_ID, m_notificationBuilder.build());
+	}
+	
+	private void updateNotification(int resID){
+		String text = (String) getText(resID);
+	       
+
+        // create the pending intent and add to the notification
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("tab", 2);// Open My Spots when notificaition is clicked
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        /*TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+	     // Adds the back stack for the Intent (but not the Intent itself)
+	     stackBuilder.addParentStack(MainActivity.class);
+	     // Adds the Intent that starts the Activity to the top of the stack
+	     stackBuilder.addNextIntent(intent);
+	     PendingIntent pendingIntent =
+	             stackBuilder.getPendingIntent(
+	                 0,
+	                 PendingIntent.FLAG_UPDATE_CURRENT
+	             );*/
+        
+        NotificationCompat.Builder m_notificationBuilder = new NotificationCompat.Builder(this)
+	        .setContentTitle(getText(R.string.app_name))
+	        .setContentText(text)
+	        .setTicker(text)
+	        .setSmallIcon(R.drawable.ic_launcher)
+	        .setAutoCancel(true)
+	        .setOngoing(false);
+	    m_notificationBuilder.setContentIntent(pendingIntent);
+	    m_notificationBuilder.setProgress(0, 0, false);
+        // send the notification
+        mNM.notify(NOTIFICATION_ID, m_notificationBuilder.build());
+	}
+	
+	public Handler getHandler(){
+		return mHandler;
+	}
+
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;spotchu/res/anim/left_to_right.xml&apos; to &apos;slide_right.xml&apos;" description="Rename resource &apos;left_to_right.xml&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="res/anim/left_to_right.xml" name="slide_right.xml" stamp="1417859255613" updateReferences="true"/>
+</session>

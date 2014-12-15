@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+    <!--  ImageView
+        android:id="@+id/imgPic"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal"
+        android:scaleType="centerCrop"
+         /-->
+         
+    <android.opengl.GLSurfaceView
+        android:id="@+id/effectsview"
+        android:layout_width="fill_parent"
+        android:layout_height="300dp"
+    />     
+    
+    <EditText
+        android:id="@+id/txtCaption"
+        style="@style/label.medium"
+        android:ems="10"
+        android:hint="@string/add_caption"
+        android:layout_margin="20dp"
+        android:layout_gravity="center_horizontal" >
+        <requestFocus />
+    </EditText>
+    
+    <RelativeLayout 
+    	 android:layout_width="match_parent"
+    	 android:layout_height="wrap_content"
+    	    
+    >
+        
+	    <LinearLayout 
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+	    	    android:layout_above="@+id/layoutBottomButtons"
+	    	>
+	    	 
+		    	 <ImageButton 
+				     android:id="@+id/btnNoEffect"
+		        	 android:layout_width="40dp"
+				     android:layout_height="40dp"
+				     android:layout_weight="0.2"
+				     android:src="@drawable/hi5"
+				     android:background="@android:color/white"
+				/>
+				
+				<ImageButton 
+				     android:id="@+id/btnCommentSpot"
+		        	 android:layout_width="40dp"
+				     android:layout_height="40dp"
+				     android:layout_weight="0.2"
+				     android:src="@drawable/comment"
+				     android:background="@android:color/white"
+				/>
+				
+				<ImageButton 
+				     android:id="@+id/btnShareSpot"
+		        	 android:layout_width="40dp"
+				     android:layout_height="40dp"
+				     android:layout_weight="0.2"
+				     android:src="@android:drawable/ic_menu_share"
+				     android:background="@android:color/white"
+				/>
+				
+				<ImageButton 
+				     android:id="@+id/btnShareSpot"
+		        	 android:layout_width="40dp"
+				     android:layout_height="40dp"
+				     android:layout_weight="0.2"
+				     android:src="@android:drawable/ic_menu_share"
+				     android:background="@android:color/white"
+				/>
+				
+				<ImageButton 
+				     android:id="@+id/btnShareSpot"
+		        	 android:layout_width="40dp"
+				     android:layout_height="40dp"
+				     android:layout_weight="0.2"
+				     android:src="@android:drawable/ic_menu_share"
+				     android:background="@android:color/white"
+				/>
+		</LinearLayout>     
+	        
+	        
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:weightSum="1.0"
+	        android:layout_alignParentBottom="true"
+	        android:id="@+id/layoutBottomButtons" >"
+	
+	        <Button
+	            android:id="@+id/btnCancel"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/cancel"
+	            android:layout_weight=".5" />
+	
+	        <Button
+	            android:id="@+id/btnOk"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/share"
+	            android:layout_weight=".5"
+	            android:enabled="true" />
+	    
+	    </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

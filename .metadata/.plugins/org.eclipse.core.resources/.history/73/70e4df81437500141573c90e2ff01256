@@ -1,0 +1,105 @@
+package com.vrocketz.spotchu.activity;
+
+import android.app.ActionBar;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTabHost;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TabHost.TabSpec;
+
+import com.vrocketz.spotchu.R;
+import com.vrocketz.spotchu.activity.fragment.CameraFragment;
+import com.vrocketz.spotchu.activity.fragment.ExploreGridFragment;
+import com.vrocketz.spotchu.activity.fragment.MySpotsFragment;
+import com.vrocketz.spotchu.helper.Config;
+import com.vrocketz.spotchu.helper.Constants;
+
+public class MainActivity extends FragmentActivity implements OnClickListener{
+	
+	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+	private FragmentTabHost mTabHost;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		ActionBar actionBar = getActionBar();
+	    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+	    actionBar.setDisplayShowTitleEnabled(false);
+
+	    Tab tab = actionBar.newTab()
+	                       .setText(R.string.explore)
+	                       .setTabListener(new TabListener<ExploreGridFragment>(
+	                               this, "explore", ExploreGridFragment.class));
+	    actionBar.addTab(tab);
+
+	    tab = actionBar.newTab()
+	                   .setText(R.string.my_spots)
+	                   .setTabListener(new TabListener<MySpotsFragment>(
+	                           this, "my_spots", MySpotsFragment.class));
+	    actionBar.addTab(tab);
+		/*setContentView(R.layout.main);
+		mTabHost = (FragmentTabHost)findViewById(R.id.tabhost);
+		mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+		
+		//Explore tab
+		TabSpec exploreSpec = mTabHost.newTabSpec("Explore");
+		Drawable d1 = getResources().getDrawable(R.drawable.browse);
+		ImageView b1 = new ImageView(this);
+		b1.setImageDrawable(d1);
+		exploreSpec.setIndicator("Explore");
+		mTabHost.addTab(exploreSpec, ExploreGridFragment.class, null);
+		
+		//Camera tab
+		TabSpec cameraSpec = mTabHost.newTabSpec("Camera");
+		Drawable d2 = getResources().getDrawable(R.drawable.camera);
+		ImageView b2 = new ImageView(this);
+		b2.setImageDrawable(d2);
+		cameraSpec.setIndicator(b2);
+		mTabHost.addTab(cameraSpec, CameraFragment.class, null);
+		
+		//My Spots tab
+		TabSpec mySpotsSpec = mTabHost.newTabSpec("MySpots");
+		Drawable d3 = getResources().getDrawable(R.drawable.user);
+		ImageView b3 = new ImageView(this);
+		b3.setImageDrawable(d3);
+		mySpotsSpec.setIndicator("My Spots");
+		mTabHost.addTab(mySpotsSpec,  MySpotsFragment.class, null);
+		
+		mTabHost.setOnClickListener(this);*/
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		int tabOverride = getIntent().getIntExtra("tab", -1);
+		if (tabOverride != -1){
+			mTabHost.setCurrentTab(tabOverride);
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (Config.DEBUG)
+			Log.d(Constants.APP_NAME, "[Main] onClick , view :" + v.getClass().getName()
+					 + ", view id : " + v.getId());
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	       
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	
+}

@@ -1,0 +1,15 @@
+package com.vrocketz.spotchu.helper;
+
+public enum HandlerMessages {
+	
+	SPOTS_FETCHED(1)
+	
+	int value;
+	HandlerMessages(int val){
+		value = val;
+	}
+	
+	int getValue(){
+		return value;
+	}
+}

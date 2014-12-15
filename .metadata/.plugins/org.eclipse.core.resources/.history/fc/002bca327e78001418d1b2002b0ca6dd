@@ -1,0 +1,25 @@
+package com.vrocketz.spotchu.runnables;
+
+import com.vrocketz.spotchu.helper.Constants;
+
+import android.os.Handler;
+
+public class DeleteSpots implements Runnable {
+	
+	private static String END_POINT = "spots/";
+	private static String URL = Constants.API_HOST + END_POINT;
+	private Integer mSpotId;
+	private Handler mHandler;
+	
+	public DeleteSpots(Handler handler, Integer id){
+		mSpotId= id;
+		mHandler = handler;
+	}
+
+	@Override
+	public void run() {
+		StringBuilder url = new StringBuilder(URL);
+		url.append(mSpotId);
+	}
+
+}

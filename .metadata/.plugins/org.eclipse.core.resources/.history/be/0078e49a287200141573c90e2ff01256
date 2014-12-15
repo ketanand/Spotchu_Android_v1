@@ -1,0 +1,5 @@
+package com.vrocketz.spotchu.views.adapter;
+
+public class MySpotsListAdapter {
+
+}

@@ -1,0 +1,5 @@
+package com.vrocketz.spotchu.spot;
+
+public class SpotDao {
+
+}

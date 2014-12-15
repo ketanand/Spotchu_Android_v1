@@ -1,0 +1,77 @@
+package com.vrocketz.spotchu.activity;
+
+import org.json.JSONArray;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.vrocketz.spotchu.R;
+import com.vrocketz.spotchu.helper.Config;
+import com.vrocketz.spotchu.helper.Constants;
+import com.vrocketz.spotchu.runnables.Comment;
+import com.vrocketz.spotchu.views.adapter.CommentsListAdapter;
+import com.vrocketz.spotchu.views.adapter.ExploreGridViewAdapter;
+
+public class CommentsActivity extends FragmentActivity implements OnClickListener {
+	
+	EditText mText;
+	int mSpotId;
+	private CommentsListAdapter mAdapter;
+    private JSONArray mComments;
+    private Integer mFrom;
+    private long mStartTime;
+	
+	@Override
+	protected void onCreate(Bundle bundle) {
+		super.onCreate(bundle);
+		mSpotId = getIntent().getIntExtra("spot", -1);
+		if (mSpotId == -1){
+			if (Config.DEBUG)
+				Log.d(Constants.APP_NAME, "[Comments Activity] id : " + mSpotId);
+			this.finish();
+		}
+		setContentView(R.layout.comments);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		Button btnComment = (Button)findViewById(R.id.btnPostComment);
+		btnComment.setOnClickListener(this);
+		mText = (EditText)findViewById(R.id.txtComment);
+		
+	}
+
+	@Override
+	public void onClick(View view) {
+		if (view.getId() == R.id.btnPostComment){
+			String text = mText.getText().toString();
+			new Thread(new Comment(mSpotId, text, mHandler)).start();
+		}
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    // Respond to the action bar's Up/Home button
+	    case android.R.id.home:
+	        NavUtils.navigateUpFromSameTask(this);
+	        return true;
+	    }
+	    return super.onOptionsItemSelected(item);
+	}
+	
+	private final Handler mHandler = new Handler(){
+		public void handleMessage(Message msg){
+			final int what = msg.what;
+			switch(what){
+			}
+		}
+	};
+
+}

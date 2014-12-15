@@ -1,0 +1,160 @@
+package com.vrocketz.spotchu.activity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONObject;
+
+import android.annotation.TargetApi;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.Toast;
+
+import com.etsy.android.grid.StaggeredGridView;
+import com.vrocketz.spotchu.R;
+import com.vrocketz.spotchu.helper.Constants;
+import com.vrocketz.spotchu.views.adapter.ExploreGridViewAdapter;
+
+public class ExploreGridFragment extends Fragment implements AbsListView.OnScrollListener, AbsListView.OnItemClickListener{
+	
+	private ArrayList<String> mData;
+	public static final String SAVED_DATA_KEY = "saved_data";
+	public static final String SAVED_SPOTS_KEY = "saved_spots";
+	// references to our images , for test only
+	//TODO : replace with dynamic implementation.
+    public static String[] mThumbIds = {
+    	"http://cdn1.recordstree.com/s1/20140926/1808888292-1411743088.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/1288923741-1411742455.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/962233037-1411743271.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/1808888292-1411743088.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/1288923741-1411742455.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/962233037-1411743271.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/1808888292-1411743088.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/1288923741-1411742455.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/962233037-1411743271.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/1808888292-1411743088.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/1288923741-1411742455.jpeg",
+    	"http://cdn1.recordstree.com/s1/20140926/962233037-1411743271.jpeg"
+    };
+    private StaggeredGridView mGridView;
+    private boolean mHasRequestedMore;
+    private ExploreGridViewAdapter mAdapter;
+    private JSONObject mSpots;
+    private Integer mPage;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View v = inflater.inflate(R.layout.explore, container, false);
+		mGridView = (StaggeredGridView) v.findViewById(R.id.gridview);
+		if (savedInstanceState != null) {
+			mData = savedInstanceState.getStringArrayList(SAVED_DATA_KEY);
+	    }
+	    mGridView.setOnScrollListener(this);
+	    mGridView.setOnItemClickListener(this);
+		return v;
+	}
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
+	private void initGridView(ArrayList<String> images){
+		mData = images;
+		mAdapter = new ExploreGridViewAdapter(getActivity(), android.R.layout.simple_list_item_1, getData());
+		mGridView.setAdapter(mAdapter);
+	}
+	
+	@Override
+	public void onSaveInstanceState(final Bundle outState) {
+		 super.onSaveInstanceState(outState);
+	     outState.putStringArrayList(SAVED_DATA_KEY, mData);
+	     outState.putString(SAVED_SPOTS_KEY, mSpots.toString());
+	}
+	
+	private ArrayList<String> getData(){
+		ArrayList<String> a = new ArrayList<String>();
+		for (String s : mThumbIds){
+			a.add(s);
+		}
+		return a;
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+		Toast.makeText(getActivity(), "[ExploreGridFragment] Item Clicked: " + position, Toast.LENGTH_SHORT).show();
+		Intent i = new Intent(getActivity(), FullScreenSpotActivity.class);
+        i.putExtra("position", position);
+        getActivity().startActivity(i);
+	}
+
+	@Override
+	public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount, final int totalItemCount) {
+		Log.d(Constants.APP_NAME, "[ExploreGridFragment] onScroll firstVisibleItem:" + firstVisibleItem +
+                " visibleItemCount:" + visibleItemCount +
+                " totalItemCount:" + totalItemCount);
+		// our handling
+		if (!mHasRequestedMore) {
+			int lastInScreen = firstVisibleItem + visibleItemCount;
+			if (lastInScreen >= totalItemCount) {
+			    Log.d(Constants.APP_NAME, "[ExploreGridFragment] onScroll lastInScreen - so load more");
+			    mHasRequestedMore = true;
+			    onLoadMoreItems();
+			}
+		}
+	}
+	
+	private void onLoadMoreItems() {
+        final ArrayList<String> sampleData = getData();
+        for (String data : sampleData) {
+            mAdapter.add(data);
+        }
+        // stash all the data in our backing store
+        mData.addAll(sampleData);
+        // notify the adapter that we can update now
+        mAdapter.notifyDataSetChanged();
+        mHasRequestedMore = false;
+    }
+
+	@Override
+	public void onScrollStateChanged(final AbsListView view, final int scrollState) {
+		Log.d(Constants.APP_NAME, "[ExploreGridFragment] onScrollStateChanged:" + scrollState);
+	}
+	
+	private Handler mHandler = new Handler(){
+			public void handleMessage(Message msg){
+				final int what = msg.what;
+				switch(what){
+					case Constants.SPOTS_FETCHED:
+						handleSuccess((JSONObject) msg.obj);
+						break;
+						
+					case Constants.SPOTS_FETCH_FAILED:
+						handleFailure();
+						break;
+				}
+			}
+			
+	};
+	
+	private void handleSuccess(JSONObject newSpots){
+		
+	}
+	
+	private void handleFailure(){
+		
+	}
+
+}

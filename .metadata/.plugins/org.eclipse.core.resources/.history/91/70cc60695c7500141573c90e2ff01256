@@ -1,0 +1,157 @@
+package com.vrocketz.spotchu.activity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.NavUtils;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ShareActionProvider;
+
+import com.vrocketz.spotchu.R;
+import com.vrocketz.spotchu.helper.Config;
+import com.vrocketz.spotchu.helper.Constants;
+import com.vrocketz.spotchu.views.adapter.FullScreenSpotAdapter;
+
+public class FullScreenSpotActivity extends Activity implements OnPageChangeListener{
+
+	private PagerAdapter mPagerAdapter;
+
+	private ViewPager mPager;
+	
+	private String[] mSpotImages;
+	
+	private JSONArray mSpots;
+	private ShareActionProvider mShareActionProvider;
+	private int startPosition;
+
+	@Override
+	
+	protected void onCreate(Bundle savedInstanceState) {
+	
+		super.onCreate(savedInstanceState);
+	
+		setContentView(R.layout.spot_fullscreen);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		// get intent data
+		
+		Intent i = getIntent();
+		
+		int position = i.getExtras().getInt(Constants.SPOT_ID);
+		mSpotImages = i.getStringArrayExtra(Constants.SPOT_IMAGES);
+		try {
+			mSpots = new JSONArray(i.getStringExtra(Constants.SPOTS));
+		} catch (JSONException e) {
+			// TODO Handle and return to caller.
+			e.printStackTrace();
+		}
+	
+		mPagerAdapter = new FullScreenSpotAdapter(this, mHandler, mSpotImages, mSpots);
+	
+		mPager = (ViewPager) findViewById(R.id.pager);
+	
+		mPager.setAdapter(mPagerAdapter);
+	
+		mPager.setCurrentItem(position);
+		startPosition = position;
+		mPager.setOnPageChangeListener(this);
+	
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    getMenuInflater().inflate(R.menu.spot_view_actions, menu);
+	    MenuItem item = menu.findItem(R.id.menu_item_share);
+	    mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+	    setShareIntent(getShareIntent(startPosition));
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    // Respond to the action bar's Up/Home button
+	    case android.R.id.home:
+	        NavUtils.navigateUpFromSameTask(this);
+	        return true;
+	    }
+	    return super.onOptionsItemSelected(item);
+	}
+	
+	// Call to update the share intent
+	private void setShareIntent(Intent shareIntent) {
+	    if (mShareActionProvider != null) {
+	        mShareActionProvider.setShareIntent(shareIntent);
+	    }
+	}
+	
+	private static final Handler mHandler = new Handler(){
+		public void handleMessage(Message msg){
+			final int what = msg.what;
+			switch(what){
+				
+			}
+		}
+	};
+	
+	public Handler getHandler(){
+		return mHandler;
+	}
+	
+	private Intent getShareIntent(int position){
+		Intent sendIntent = new Intent();
+		sendIntent.setAction(Intent.ACTION_SEND);
+		String text = getShareText(position);
+		if (text != null){
+			sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+		}else {
+			sendIntent.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.spot_url_not_found_message));
+		}
+		sendIntent.setType("text/plain");
+		return sendIntent;
+	}
+	
+	private String getShareText(int position){
+		StringBuilder share = new StringBuilder();;
+		try {
+			if (Config.DEBUG)
+				Log.d(Constants.APP_NAME, "[FullScreenSpotActivity] position: " + 1);
+			String url = mSpots.getJSONObject(position).getString("url");
+			share.append(getResources().getString(R.string.spot_url_share_message)).append(url);
+		}catch(JSONException e){
+			Log.d(Constants.APP_NAME, "[FullScreenSpotActivity] getShareText : " + e.getMessage());
+		}
+		return share.toString();
+	}
+
+	@Override
+	public void onPageScrollStateChanged(int state) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPageSelected(int position) {
+		if (Config.DEBUG)
+			Log.d(Constants.APP_NAME, "[FullScreenSpotActivity] onPageSelected: " + position);
+		setShareIntent(getShareIntent(position));
+	}
+
+}
+
+

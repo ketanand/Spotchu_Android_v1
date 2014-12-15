@@ -1,0 +1,15 @@
+package com.vrocketz.spotchu.views.adapter;
+
+import org.json.JSONObject;
+
+import android.content.Context;
+import android.widget.ArrayAdapter;
+
+public class MySpotsListAdapter extends ArrayAdapter<JSONObject>{
+
+	public MySpotsListAdapter(Context context, int resource,
+			JSONObject[] objects) {
+		super(context, resource, objects);
+	}
+
+}

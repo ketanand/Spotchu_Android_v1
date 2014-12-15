@@ -1,0 +1,74 @@
+package com.vrocketz.spotchu.activity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+
+import com.vrocketz.spotchu.R;
+import com.vrocketz.spotchu.helper.Constants;
+import com.vrocketz.spotchu.views.adapter.FullScreenSpotAdapter;
+
+public class FullScreenSpotActivity extends Activity {
+
+	private PagerAdapter mPagerAdapter;
+
+	private ViewPager mPager;
+	
+	private String[] mSpotImages;
+	
+	private JSONArray mSpots;
+
+	@Override
+	
+	protected void onCreate(Bundle savedInstanceState) {
+	
+		super.onCreate(savedInstanceState);
+	
+		setContentView(R.layout.spot_fullscreen);
+	
+		// get intent data
+		
+		Intent i = getIntent();
+		
+		int position = i.getExtras().getInt(Constants.SPOT_ID);
+		mSpotImages = i.getStringArrayExtra(Constants.SPOT_IMAGES);
+		try {
+			mSpots = new JSONArray(i.getStringExtra(Constants.SPOTS));
+		} catch (JSONException e) {
+			// TODO Handle and return to caller.
+			e.printStackTrace();
+		}
+	
+		mPagerAdapter = new FullScreenSpotAdapter(this, mHandler, mSpotImages);
+	
+		mPager = (ViewPager) findViewById(R.id.pager);
+	
+		mPager.setAdapter(mPagerAdapter);
+	
+		mPager.setCurrentItem(position);
+	
+	}
+	
+	private final Handler mHandler = new Handler(){
+		public void handleMessage(Message msg){
+			final int what = msg.what;
+			switch(what){
+				
+			}
+		}
+	};
+	
+	public Handler getHandler(){
+		return mHandler;
+	}
+
+}
+
+
